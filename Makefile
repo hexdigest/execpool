@@ -24,7 +24,8 @@ lint: ./bin/golangci-lint
 
 .PHONY:
 test: lint
-	GOGC=off go test -race ./... -count 1 -v
+	rm -f ./profile.cov
+	GOGC=off go test -race ./... -count 1 -v -coverprofile=profile.cov
 
 .PHONY:
 benchmark: lint
@@ -33,12 +34,14 @@ benchmark: lint
 .PHONY:
 clean:
 	rm -f ./bin/*
+	rm -f ./profile.cov
+	rm -f ./execpool.test
+
+./profile.cov: test
 
 .PHONY:
-coverage:
-	rm -f coverage.out
-	go test -coverprofile=coverage.out ./...
-	go tool cover -html=coverage.out
+show-coverage: profile.cov
+	go tool cover -html=profile.cov
 
 .PHONY:
 tidy:

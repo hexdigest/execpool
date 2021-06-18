@@ -2,7 +2,9 @@ package execpool
 
 import (
 	"context"
+	"io"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -13,6 +15,31 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Run("invalid command", func(t *testing.T) {
+		cmd := exec.Command("-this-command-does-not-exists-", "none")
+		pool, err := New(cmd, 1)
+		require.Error(t, err)
+		assert.Nil(t, pool)
+	})
+
+	t.Run("grep_with_env_and_files", func(t *testing.T) {
+		cmd := exec.Command("grep", "none")
+		cmd.Env = []string{"LC_ALL=en_US"}
+
+		f, err := os.Open("go.mod")
+		require.NoError(t, err)
+		defer f.Close()
+
+		cmd.ExtraFiles = []*os.File{f}
+
+		pool, err := New(cmd, 1)
+		require.NoError(t, err)
+		rc := pool.Exec(strings.NewReader("this makes sense\nthis is nonesense"))
+		b, err := ioutil.ReadAll(rc)
+		require.NoError(t, err)
+		assert.Equal(t, "this is nonesense\n", string(b))
+	})
+
 	t.Run("grep_success", func(t *testing.T) {
 		cmd := exec.Command("grep", "none")
 		pool, err := New(cmd, 1)
@@ -34,6 +61,20 @@ func TestNew(t *testing.T) {
 		exitError, ok := err.(*exec.ExitError)
 		assert.True(t, ok)
 		assert.Equal(t, 2, exitError.ExitCode())
+	})
+
+	t.Run("error_reading_from_stdin", func(t *testing.T) {
+		cmd := exec.Command("grep", "none")
+		pool, err := New(cmd, 1)
+		require.NoError(t, err)
+		rc := pool.Exec(&errReader{io.ErrShortBuffer})
+		b, err := ioutil.ReadAll(rc)
+		require.Error(t, err)
+
+		unwrapper, ok := err.(interface{ Unwrap() error })
+		require.True(t, ok)
+		assert.Equal(t, io.ErrShortBuffer, unwrapper.Unwrap())
+		assert.Empty(t, b)
 	})
 }
 

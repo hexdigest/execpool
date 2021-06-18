@@ -20,10 +20,6 @@ type Command struct {
 
 // Read implements io.Reader
 func (c *Command) Read(p []byte) (int, error) {
-	if err := c.error(); err != nil {
-		return 0, err
-	}
-
 	n, err := c.stdout.Read(p)
 	if err == io.EOF {
 		if waitErr := c.cmd.Wait(); waitErr != nil {
@@ -33,6 +29,10 @@ func (c *Command) Read(p []byte) (int, error) {
 
 		c.stop(nil)
 		return n, io.EOF
+	}
+
+	if err := c.error(); err != nil {
+		return n, err
 	}
 
 	if err != nil {
@@ -46,7 +46,9 @@ func (c *Command) Read(p []byte) (int, error) {
 // command context
 func (c *Command) stop(err error) {
 	c.lock.Lock()
-	c.err = err
+	if c.err == nil {
+		c.err = err
+	}
 	c.lock.Unlock()
 
 	c.stdout.Close()
