@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -16,7 +17,7 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Run("invalid command", func(t *testing.T) {
-		cmd := exec.Command("-this-command-does-not-exists-", "none")
+		cmd := exec.Command("-this-command-does-not-exist-", "none")
 		pool, err := New(cmd, 1)
 		require.Error(t, err)
 		assert.Nil(t, pool)
@@ -75,6 +76,48 @@ func TestNew(t *testing.T) {
 		require.True(t, ok)
 		assert.Equal(t, io.ErrShortBuffer, unwrapper.Unwrap())
 		assert.Empty(t, b)
+	})
+
+	t.Run("no_more_commands", func(t *testing.T) {
+		ch := make(chan *Command)
+		close(ch)
+		pool := &Pool{
+			commands: ch,
+			err:      &errReader{io.ErrShortBuffer},
+			lock:     &sync.RWMutex{},
+		}
+
+		errReader := pool.Exec(strings.NewReader(""))
+		var p []byte
+		n, err := errReader.Read(p)
+		assert.Error(t, err)
+		assert.Equal(t, 0, n)
+	})
+
+	t.Run("pool_error", func(t *testing.T) {
+		pool := &Pool{
+			cmd:      exec.Command("grep", "none"),
+			commands: make(chan *Command, 1),
+			lock:     &sync.RWMutex{},
+		}
+
+		cmd, err := pool.newCommand()
+		require.NoError(t, err)
+		pool.commands <- cmd
+
+		pool.cmd = exec.Command("-this-command-does-not-exist-", "--bad-argument")
+
+		stdout := pool.Exec(strings.NewReader("nonesense"))
+		b, err := ioutil.ReadAll(stdout)
+		require.NoError(t, err)
+		assert.Equal(t, "nonesense\n", string(b))
+
+		select {
+		case <-pool.commands:
+			assert.NotEmpty(t, pool.err)
+		case <-time.After(time.Second):
+			t.Fatalf("commands chan was not closed on time")
+		}
 	})
 }
 
