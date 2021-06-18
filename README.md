@@ -35,7 +35,7 @@ func main() {
 	//spin up 100 processes of grep
 	pool, err := execpool.New(cmd, 100)
 
-	rc := pool.Exec(strings.NewReader("this makes sence\nthis is nonesense"))
+	rc := pool.Exec(strings.NewReader("this makes sense\nthis is nonesense"))
 	b, err := ioutil.ReadAll(rc)
 	if err != nil {
 		log.Fatalf("failed to read from stdout: %v", err)

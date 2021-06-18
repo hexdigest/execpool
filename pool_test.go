@@ -17,7 +17,7 @@ func TestNew(t *testing.T) {
 		cmd := exec.Command("grep", "none")
 		pool, err := New(cmd, 1)
 		require.NoError(t, err)
-		rc := pool.Exec(strings.NewReader("this makes sence\nthis is nonesense"))
+		rc := pool.Exec(strings.NewReader("this makes sense\nthis is nonesense"))
 		b, err := ioutil.ReadAll(rc)
 		require.NoError(t, err)
 		assert.Equal(t, "this is nonesense\n", string(b))
