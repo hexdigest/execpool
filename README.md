@@ -6,14 +6,12 @@
 [![GoDoc](https://godoc.org/github.com/hexdigest/execpool?status.svg)](http://godoc.org/github.com/hexdigest/execpool)
 [![Release](https://img.shields.io/github/release/hexdigest/execpool.svg)](https://github.com/hexdigest/execpool/releases/latest)
 
-Why? Sometimes when you implement Go services you have to integrate
-with third party command line tools. You can do it by simply using [exec.Command](https://golang.org/pkg/os/exec/#Command)
-but the problem with this approach is than your service has to wait while a new process
-is being loaded into the memory and started. Some times this can drastically increase the latency of your service.
-ExecPool works similarily to [FastCGI](https://en.wikipedia.org/wiki/FastCGI) but it can wrap any regular process. 
-It spins up a given number of processes in advance and when it's time to handle
-a request from the user your service attaches stdin to an existing process from the pool.
-Basically execpool helps you trade memory for latency.
+Why? Sometimes when you implement Go services you have to integrate with third party command line tools. 
+You can do it by simply using [exec.Command](https://golang.org/pkg/os/exec/#Command) but the problem with this approach is 
+that your service has to wait while a new process is being loaded into the memory and started. Sometimes this can drastically 
+increase the latency of your service. ExecPool works similarly to [FastCGI](https://en.wikipedia.org/wiki/FastCGI) but it can
+wrap any regular process. It spins up a given number of processes in advance and when it's time to handle a request from the
+user your service just attaches stdin to an existing process from the pool. Basically the execpool helps you trade memory for latency.
 
 # Usage
 
