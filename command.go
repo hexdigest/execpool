@@ -2,13 +2,12 @@ package execpool
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	"sync"
 )
 
+// Command is wrapper around exec.Cmd that implements io.Reader interface
 type Command struct {
 	cmd    *exec.Cmd
 	lock   sync.RWMutex
@@ -17,52 +16,6 @@ type Command struct {
 	stdout io.ReadCloser
 	cancel func()
 	ctx    context.Context
-}
-
-// newCommand spins a new process that will be waiting for stdin
-func (p *Pool) newCommand() (*Command, error) {
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, p.cmd.Path)
-	cmd.Dir = p.cmd.Dir
-
-	if l := len(p.cmd.ExtraFiles); l > 0 {
-		cmd.ExtraFiles = make([]*os.File, l)
-		copy(p.cmd.ExtraFiles, cmd.ExtraFiles)
-	}
-
-	if l := len(p.cmd.Args); l > 0 {
-		cmd.Args = make([]string, len(p.cmd.Args))
-		copy(cmd.Args, p.cmd.Args)
-	}
-
-	if l := len(p.cmd.Env); l > 0 {
-		cmd.Env = make([]string, len(p.cmd.Env))
-		copy(p.cmd.Env, cmd.Env)
-	}
-
-	c := Command{
-		cmd:    cmd,
-		cancel: cancelFunc,
-		ctx:    ctx,
-	}
-
-	var err error
-
-	c.stdin, err = cmd.StdinPipe()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create stdin pipe: %w", err)
-	}
-
-	c.stdout, err = cmd.StdoutPipe()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create stdout pipe: %w", err)
-	}
-
-	if err = c.cmd.Start(); err != nil {
-		return nil, fmt.Errorf("failed to start command: %w", err)
-	}
-
-	return &c, nil
 }
 
 // Read implements io.Reader
