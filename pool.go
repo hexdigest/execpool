@@ -89,8 +89,8 @@ func (p *Pool) newCommand() (*Command, error) {
 	return &c, nil
 }
 
-// Exec fetches a waiting process from the pool and attaches stdin
-// to this process.
+// Exec takes a waiting process from the pool, attaches stdin to it and returns a reader
+// representing process's stdout
 func (p *Pool) Exec(stdin io.Reader) (stdout io.Reader) {
 	command := <-p.commands
 
@@ -129,9 +129,9 @@ func (p *Pool) Exec(stdin io.Reader) (stdout io.Reader) {
 	return command
 }
 
-// ExecContext takes a waiting process from the pool and attaches stdin to it
-// and returns a reader representing its stdout. When ctx id done the pool closes
-// stdout and terminate the process.
+// ExecContext takes a waiting process from the pool, attaches stdin to it and returns a
+// reader representing process's stdout. When context is done the pool closes stdout and
+// terminates the process.
 func (p *Pool) ExecContext(ctx context.Context, stdin io.Reader) (stdout io.Reader) {
 	command := p.Exec(stdin).(*Command)
 
