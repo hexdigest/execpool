@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-mit-green.svg)](https://github.com/hexdigest/execpool/blob/master/LICENSE)
 [![Build](https://github.com/hexdigest/execpool/actions/workflows/go.yml/badge.svg)](https://github.com/hexdigest/execpool/actions/workflows/go.yml)
+[![Coverage Status](https://coveralls.io/repos/github/hexdigest/execpool/badge.svg?branch=main)](https://coveralls.io/github/hexdigest/execpool?branch=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hexdigest/execpool)](https://goreportcard.com/report/github.com/hexdigest/execpool)
 [![GoDoc](https://godoc.org/github.com/hexdigest/execpool?status.svg)](http://godoc.org/github.com/hexdigest/execpool)
 [![Release](https://img.shields.io/github/release/hexdigest/execpool.svg)](https://github.com/hexdigest/execpool/releases/latest)
