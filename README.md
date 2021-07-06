@@ -6,6 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/hexdigest/execpool)](https://goreportcard.com/report/github.com/hexdigest/execpool)
 [![GoDoc](https://godoc.org/github.com/hexdigest/execpool?status.svg)](http://godoc.org/github.com/hexdigest/execpool)
 [![Release](https://img.shields.io/github/release/hexdigest/execpool.svg)](https://github.com/hexdigest/execpool/releases/latest)
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#goroutines)
 
 Why? Sometimes when you implement Go services you have to integrate with third party command line tools. 
 You can do it by simply using [exec.Command](https://golang.org/pkg/os/exec/#Command) but the problem with this approach is 
