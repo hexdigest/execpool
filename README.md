@@ -50,7 +50,7 @@ func main() {
 # Benchmark
 
 This benchmark compares "standard" approach with exec.Command and execpool.Pool by running
-grep 100 times. For heavier processes you can expect bigger difference.
+grep 100 times. For heavier processes you can expect a bigger difference.
 ```
 make benchmark
 goos: darwin
